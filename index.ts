@@ -47,38 +47,13 @@ client.on("ready", async function() {
   })
 })
 
-channel.on("follow", (follower) => {
-  console.log(follower)
-  const channel = client.channels.cache.get("1041500932036366426")
+function tts(tags, args) {
+  const guild = client.guilds.cache.get("1041166524314034287")
+    const member = guild.members.cache.get("874295983037632552")
+    const channel = member?.voice.channel;
 
-    const connection = joinVoiceChannel({
-	    channelId: channel.id,
-	    guildId: channel.guild.id,
-	    adapterCreator: channel.guild.voiceAdapterCreator,
-    });
-    const player = createAudioPlayer();
-    const resource = createAudioResource(`https://audio.aapenasigordev.repl.co/speech?text=${follower.viewerName}%20deu%20follow%20no%20canal!&lang=pt`);
+    if(!channel) return Twitch.say("ligofer0", `@${tags['display-name']} Ligo não está em nenhum canal de voz.`);
     
-    player.play(resource);
-    connection.subscribe(player);
-
-    player.on(AudioPlayerStatus.Idle, () => {
-	 connection.destroy()
-});
-})
-
-Twitch.on('message', (channel, tags, message, self) => {
-	client.channels.cache.get("1041444414888878170").send(`${tags['display-name']}: ${message}`)
-});
-Twitch.on('message', (channel, tags, message, self) => {
-	if(self || !message.startsWith('!')) return;
-
-	const args = message.slice(1).split(' ');
-	const command = args.shift().toLowerCase();
-
-	if(command === 'echo') {
-    const channel = client.channels.cache.get("1041500932036366426")
-
     const connection = joinVoiceChannel({
 	    channelId: channel.id,
 	    guildId: channel.guild.id,
@@ -93,11 +68,28 @@ Twitch.on('message', (channel, tags, message, self) => {
     player.on(AudioPlayerStatus.Idle, () => {
 	 connection.destroy()
 });
+}
+
+Twitch.on('message', (channel, tags, message, self) => {
+	client.channels.cache.get("1041444414888878170").send(`${tags['display-name']}: ${message}`)
+});
+Twitch.on('message', (channel, tags, message, self) => {
+	if(self || !message?.startsWith('!')) return;
+
+	const args = message.slice(1).split(' ');
+	const command = args.shift().toLowerCase();
+
+	if(command === 'echo') {
+    tts(tags, args)
     
 		// Twitch.say("ligofer0", `@${tags.username}, você disse: "${args.join(' ')}"`);
 	}
 });
 
+channel.on("stream-begin", (stream) => {
+  client.channels.cache.get("1041166525433917457").send(`Ligo está ao vivo com "${stream.title}"\nAssista: https://www.twitch.tv/ligofer0`)
+})
+  
 Twitch.on("subscription", (ch, username, method, message, userstate) => {
    client.channels.cache.get("1041166525610074218").send({
      embeds: [{
@@ -106,8 +98,11 @@ Twitch.on("subscription", (ch, username, method, message, userstate) => {
        
      }]
    })
-  const channel = client.channels.cache.get("1041500932036366426")
 
+   const guild = client.guilds.cache.get("1041166524314034287")
+    const member = guild.members.cache.get("874295983037632552")
+    const channel = member?.voice.channel;
+  
     const connection = joinVoiceChannel({
 	    channelId: channel.id,
 	    guildId: channel.guild.id,
